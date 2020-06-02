@@ -1,6 +1,9 @@
 from pathlib import Path
 
 class HL7_Loader:
+    # folder has many files
+    #   Each file has 1 HL7 message
+    #       Each HL7 message has multiple lines
     @staticmethod
     def load_hl7_messages(folder_name):
         source_dir = Path(folder_name)
