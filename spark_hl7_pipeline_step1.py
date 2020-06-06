@@ -3,25 +3,23 @@ from pyspark.sql import SparkSession
 import datetime
 
 from hl7_parser import HL7_Parser
+from config_framework import ConfigFramework
 
 '''
 Read a HL7 files into a Dataframe
+extract key-columns into result_df
+write result-df to a Postgres Table
 
 to execute:
 cd /home/assamese/work/python-projects/spark-python-hl7
-spark-submit spark_hl7.py
+spark-submit --conf spark.driver.extraJavaOptions='-Dcom.amazonaws.services.s3.enableV4' --conf spark.executor.extraJavaOptions='-Dcom.amazonaws.services.s3.enableV4'   --packages org.apache.hadoop:hadoop-aws:2.7.1 --driver-class-path /home/assamese/work/postgres-jdbc/postgresql-42.2.12.jar spark_hl7_pipeline_step1.py
 '''
-from pyspark.sql.functions import udf
-
-
-def clean_datetime(dt):
-    return dt[:8]
 
 
 class SparkApp:
 
     @staticmethod
-    def run(sparkContext, folder_name):
+    def run(sparkContext, folder_name, table_name):
 
         SparkApp.logger.info(sparkContext.appName + "Starting run()")
 
@@ -35,25 +33,23 @@ class SparkApp:
 
         df_hl7 = hl7_rdd.map(lambda x: (HL7_Parser.get_patient_id_from_RDD(x)
                                         , HL7_Parser.get_message_type_from_RDD(x)
-                                        , HL7_Parser.get_observation_datetime_from_RDD(x)
                                         , x
                                         , datetime.datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
                                         ))\
-            .toDF(["patient_id", "message_type", "observation_datetime", "message_content", "system_timestamp"])
+            .toDF(["patient_id", "message_type", "message_content", "system_timestamp"])
 
         print(df_hl7.show())
 
-        clean_datetime_udf = udf(clean_datetime)
-
-        df_cleaned_datetime = df_hl7.withColumn("observation_datetime_cleaned", clean_datetime_udf("observation_datetime"))
-
-        print(df_cleaned_datetime.show())
+        SparkApp.logger.info(sparkContext.appName + "Starting jdbc write() !")
+        df_hl7.write.jdbc(url=ConfigFramework.getPostgres_URL(), table=table_name, mode="overwrite"
+                       , properties=ConfigFramework.getPostgres_Properties())
+        SparkApp.logger.info(sparkContext.appName + "End jdbc write() !")
 
         SparkApp.logger.info(sparkContext.appName + "Ending run()")
 
 
 if __name__ == "__main__":
-    app_name = "hl7-Pipeline-Step1~"
+    app_name = "hl7_pipeline_step1~"
     master_config = "local[3]"  # bin/spark-shell  --master local[N] means to run locally with N threads
     conf = SparkConf().setAppName(app_name).setMaster(master_config)
     sparkContext = SparkContext(conf=conf)
@@ -65,6 +61,7 @@ if __name__ == "__main__":
     # sqlContext = SQLContext(sparkContext)
     print("------------------------------ " + app_name + " Spark-App-start -----------------------------------------")
     folder_name = '/home/assamese/work/python-projects/spark-python-hl7/hl7-data/'
-    SparkApp.run(sparkContext, folder_name)
+    table_name = 'hl7_Pipeline_Step1_sink'
+    SparkApp.run(sparkContext, folder_name, table_name)
 
     print("------------------------------- " + app_name + " Spark-App-end ------------------------------------------")
