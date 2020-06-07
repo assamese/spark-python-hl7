@@ -4,7 +4,7 @@ from config_framework import ConfigFramework
 
 '''
 Read df from Postgres
-clean, transform
+extract, clean, transform
 
 
 to execute:
@@ -18,7 +18,13 @@ def clean_datetime(dt):
     return dt[:8]
 
 def get_observation_datetime(hl7_message):
-    return HL7_Parser.get_observation_datetime_from_RDD(hl7_message) # '201903011257-0500'
+    return HL7_Parser.get_observation_datetime_from_RDD(hl7_message)
+
+def get_observation_values(hl7_message):
+    return HL7_Parser.get_observation_values_from_RDD(hl7_message)
+
+def extract_noted_observation(observed_values):
+    return HL7_Parser.extract_noted_observation(observed_values)
 
 class SparkApp:
 
@@ -35,16 +41,28 @@ class SparkApp:
         print(df_hl7.show())
 
         get_observation_datetime_udf = udf(get_observation_datetime)
-        df_with_observation_datetime = df_hl7.withColumn("observation_datetime"
+        df_with_observation_datetime = df_hl7.withColumn("observation_dt"
                                                          , get_observation_datetime_udf("message_content"))
         # print(df_with_observation_datetime.show())
 
         clean_datetime_udf = udf(clean_datetime)
 
-        df_cleaned_datetime = df_with_observation_datetime.withColumn("observation_datetime_cleaned"
-                                                , clean_datetime_udf("observation_datetime"))
+        df_cleaned_datetime = df_with_observation_datetime.withColumn("ob_dt_cleaned"
+                                                , clean_datetime_udf("observation_dt"))
 
-        print(df_cleaned_datetime.show())
+        #print(df_cleaned_datetime.show())
+
+        get_observation_values_udf = udf(get_observation_values)
+        df_with_observation_values = df_cleaned_datetime.withColumn("ob_values"
+                                                         , get_observation_values_udf("message_content"))
+        print(df_with_observation_values.show())
+
+        extract_noted_observation_udf = udf(extract_noted_observation)
+
+        df_with_ob_value_noted = df_with_observation_values.withColumn("ob_value_noted"
+                                                , extract_noted_observation_udf("ob_values"))
+
+        print(df_with_ob_value_noted.show())
 
         SparkApp.logger.info(sparkContext.appName + "Ending run()")
 

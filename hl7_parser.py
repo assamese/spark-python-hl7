@@ -15,17 +15,28 @@ MOST COMMONLY USED HL7 MESSAGE TYPES INCLUDE:
     RDE – Pharmacy/treatment encoded order
     RGV – Pharmacy/treatment give
     SIU – Scheduling information unsolicited
+
+Covid HL7 Guidelines:
+https://www.aphl.org/programs/preparedness/Crisis-Management/Documents/03.03.2020_Updated_Informatics_FAQs_Guidance_(002).pdf
 '''
 class HL7_Parser:
     @staticmethod
-    def get_message_line_with_header_from_list(header_tag, message_list):
+    def get_message_line_with_header_from_list(header_tag, index, message_list):
         r = re.compile("^" + header_tag)
         filtered_list = list(filter(r.match, message_list))
+        filtered_list.sort()
         try:
-            return filtered_list[0]
+            return filtered_list[index]
         except:
             return header_tag + " not found"
 
+    @staticmethod
+    def get_next_message_line_with_header_from_list(header_tag, message_list):
+        r = re.compile("^" + header_tag)
+        filtered_list = list(filter(r.match, message_list))
+        filtered_list.sort()
+        for item in filtered_list:
+            yield item
 
     @staticmethod
     def get_patient_external_id(PID_line):
@@ -56,12 +67,22 @@ class HL7_Parser:
         return MSH_9_fields[1-1]
 
     @staticmethod
-    def get_observation_datetime(OBR_line):
-        # OBR 8.1
-        fields = OBR_line.split("|")
+    def get_observation_datetime(OBX_line):
+        # OBX 20.1
+        fields = OBX_line.split("|")
         try:
-            OBR_7_fields = fields[8-1].split("^")
-            return OBR_7_fields[1-1]
+            OBX_20_fields = fields[20-1].split("^")
+            return OBX_20_fields[1-1]
+        except:
+            return ""
+
+    @staticmethod
+    def get_observation_value(OBX_line):
+        # OBX 6.2
+        fields = OBX_line.split("|")
+        try:
+            OBX_6_fields = fields[6-1].split("^")
+            return OBX_6_fields[2-1]
         except:
             return ""
 
@@ -76,7 +97,10 @@ class HL7_Parser:
     def get_patient_id_from_RDD(message_from_rdd):
         message_list = message_from_rdd.splitlines()
 
-        PID_line = HL7_Parser.get_message_line_with_header_from_list('PID', message_list)
+        PID_line = HL7_Parser.get_message_line_with_header_from_list(
+            'PID'
+            , 0
+            , message_list)
         # patient_external_id = HL7_Parser.get_patient_external_id(PID_line)
         patient_id = HL7_Parser.get_patient_external_id(PID_line) \
                      + HL7_Parser.get_patient_internal_id(PID_line) \
@@ -88,18 +112,45 @@ class HL7_Parser:
         message_list = message_from_rdd.splitlines()
         #MSH_line = HL7_Parser.get_message_line_with_header_from_list('MSH', message_list)
         #print("message-line: " + MSH_line)
-        return HL7_Parser.get_message_type(HL7_Parser.get_message_line_with_header_from_list('MSH', message_list))
+        return HL7_Parser.get_message_type(HL7_Parser.get_message_line_with_header_from_list(
+            'MSH'
+            , 0
+            , message_list))
 
     @staticmethod
     def get_diagnosis_from_RDD(message_from_rdd):
         message_list = message_from_rdd.splitlines()
-        return HL7_Parser.get_diagnosis(HL7_Parser.get_message_line_with_header_from_list('DG1', message_list))
+        return HL7_Parser.get_diagnosis(HL7_Parser.get_message_line_with_header_from_list(
+            'DG1'
+            , 0
+            , message_list))
 
     @staticmethod
     def get_observation_datetime_from_RDD(message_from_rdd):
         message_list = message_from_rdd.splitlines()
-        return HL7_Parser.get_observation_datetime(HL7_Parser.get_message_line_with_header_from_list('OBR', message_list))
+        return HL7_Parser.get_observation_datetime(HL7_Parser.get_message_line_with_header_from_list(
+            'OBX'
+            , 0
+            , message_list))
 
+    @staticmethod
+    def get_observation_values_from_RDD(message_from_rdd):
+        message_list = message_from_rdd.splitlines()
+        observation_values = ''
+        for obx_message_line in HL7_Parser.get_next_message_line_with_header_from_list('OBX', message_list):
+            observation_values += (HL7_Parser.get_observation_value(obx_message_line) + '|')
+        return observation_values
+
+    @staticmethod
+    def extract_noted_observation(observed_values):
+        if ('Specimen unsatisfactory' in observed_values):
+            return 'Specimen unsatisfactory'
+        elif ('Notdetected' in observed_values):
+            return 'Notdetected'
+        elif ('Detected' in observed_values):
+            return 'Detected'
+        else:
+            return ''
 
 if __name__ == "__main__":
     '''
@@ -138,3 +189,6 @@ if __name__ == "__main__":
     '''
     observation_datetime = HL7_Parser.get_observation_datetime_from_RDD(message_from_rdd)
     print("observation_datetime: " + observation_datetime)
+
+    observation_values = HL7_Parser.get_observation_values_from_RDD(message_from_rdd)
+    print("observation_values: " + observation_values)
