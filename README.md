@@ -1,2 +1,2 @@
-# spark-python-hl7
-spark project in python for HL7 data
+# spark-python-hl7-FHIR
+Spark project in Python for HL7 and FHIR data
