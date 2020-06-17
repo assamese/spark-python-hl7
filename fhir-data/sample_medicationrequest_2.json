@@ -5,7 +5,7 @@
   "link": [
     {
       "relation": "self",
-      "url": "https://fhir-open.sandboxcerner.com/r4/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/MedicationRequest?patient=1PID13295039"
+      "url": "https://fhir-open.sandboxcerner.com/r4/0b8a0111-e8e6-4c26-a91c-5069cbc6b1ca/MedicationRequest?patient=1PID13295037"
     }
   ],
   "entry": [
@@ -122,7 +122,7 @@
           "display": "Magic Mouthwash"
         },
         "subject": {
-          "reference": "Patient/1PID13295039",
+          "reference": "Patient/1PID13295037",
           "display": "PETERS, TIMOTHY"
         },
         "encounter": {
@@ -229,7 +229,7 @@
           "text": "Misc Prescription (Freetext Medication)"
         },
         "subject": {
-          "reference": "Patient/1PID13295039",
+          "reference": "Patient/1PID13295037",
           "display": "PETERS, TIMOTHY"
         },
         "encounter": {
@@ -300,7 +300,7 @@
           "text": "Misc Prescription (Freetext Medication)"
         },
         "subject": {
-          "reference": "Patient/1PID13295039",
+          "reference": "Patient/1PID13295037",
           "display": "PETERS, TIMOTHY"
         },
         "encounter": {

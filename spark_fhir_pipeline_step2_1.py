@@ -11,6 +11,19 @@ cd /home/assamese/work/python-projects/spark-python-hl7
 spark-submit --conf spark.driver.extraJavaOptions='-Dcom.amazonaws.services.s3.enableV4' --conf spark.executor.extraJavaOptions='-Dcom.amazonaws.services.s3.enableV4'   --packages org.apache.hadoop:hadoop-aws:2.7.1 --driver-class-path /home/assamese/work/postgres-jdbc/postgresql-42.2.12.jar spark_fhir_pipeline_step2_1.py
 '''
 
+
+def clean_datetime(dt):
+    # convert 2016-06-24T10:38... to 20160624
+    x = dt[:10]
+    return x.replace("-", "")
+
+
+def extract_patient_id(subject_reference):
+    # extract 1PID13295039 from Patient/1PID13295039
+    l = subject_reference.split('/')
+    return l[1]
+
+
 class SparkApp:
 
     @staticmethod
@@ -22,7 +35,7 @@ class SparkApp:
             .read\
             .option("multiLine", True)\
             .option("mode", "PERMISSIVE")\
-            .json(folder_name + file_name)
+            .json(folder_name)
         print(df_fhir.show())
 
         df_fhir_entry_list = df_fhir.select(
@@ -41,9 +54,18 @@ class SparkApp:
                                         , col("entry_list_0").resource.medicationReference.display.alias("resource_medicationReference_display")
                                         , col("entry_list_0").resource.subject.reference.alias("resource_subject_reference")
                                         , col("entry_list_0").resource.requester.reference.alias("resource_requester_reference")
+                                        , col("entry_list_0").resource.authoredOn.alias("resource_authoredOn")
                                         )
         )
-        df_fhir_entry_list_0_exploded.show()
+        #df_fhir_entry_list_0_exploded.show()
+
+        clean_datetime_udf = udf(clean_datetime)
+        extract_patient_id_udf = udf(extract_patient_id)
+
+        df_cleaned_datetime = df_fhir_entry_list_0_exploded\
+            .withColumn("resource_authoredOn_dt", clean_datetime_udf("resource_authoredOn"))\
+            .withColumn("patient_id", extract_patient_id_udf("resource_subject_reference"))
+        df_cleaned_datetime.show()
 
         SparkApp.logger.info(sparkContext.appName + "Ending run()")
 
