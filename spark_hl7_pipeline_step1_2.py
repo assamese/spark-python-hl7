@@ -5,7 +5,7 @@ from config_framework import ConfigFramework
 '''
 Read df from Postgres
 extract, clean, transform
-
+Write df into Postgres
 
 to execute:
 cd /home/assamese/work/python-projects/spark-python-hl7
@@ -29,7 +29,7 @@ def extract_noted_observation(observed_values):
 class SparkApp:
 
     @staticmethod
-    def run(sparkContext, src_table_name):
+    def run(sparkContext, src_table_name, sink_table_name):
         SparkApp.logger.info(sparkContext.appName + "Starting run()")
 
         sqlContext = SQLContext(sparkContext)
@@ -64,6 +64,11 @@ class SparkApp:
 
         print(df_with_ob_value_noted.show())
 
+        SparkApp.logger.info(sparkContext.appName + "Starting jdbc write() !")
+        df_with_ob_value_noted.write.jdbc(url=ConfigFramework.getPostgres_URL(), table=sink_table_name, mode="overwrite"
+                       , properties=ConfigFramework.getPostgres_Properties())
+        SparkApp.logger.info(sparkContext.appName + "End jdbc write() !")
+
         SparkApp.logger.info(sparkContext.appName + "Ending run()")
 
 
@@ -79,7 +84,8 @@ if __name__ == "__main__":
 
     # sqlContext = SQLContext(sparkContext)
     print("------------------------------ " + app_name + " Spark-App-start -----------------------------------------")
-    table_name = 'hl7_Pipeline_Step1_sink'
-    SparkApp.run(sparkContext, table_name)
+    source_table_name = 'hl7_Pipeline_Step1_1_sink'
+    sink_table_name = 'hl7_Pipeline_Step1_2_sink'
+    SparkApp.run(sparkContext, source_table_name, sink_table_name)
 
     print("------------------------------- " + app_name + " Spark-App-end ------------------------------------------")

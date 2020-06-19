@@ -1,5 +1,6 @@
 from pyspark import SparkContext, SparkConf, SQLContext
 from pyspark.sql.functions import *
+from config_framework import ConfigFramework
 
 '''
 Read a FHIR files into a Dataframe
@@ -66,6 +67,11 @@ class SparkApp:
             .withColumn("resource_authoredOn_dt", clean_datetime_udf("resource_authoredOn"))\
             .withColumn("patient_id", extract_patient_id_udf("resource_subject_reference"))
         df_cleaned_datetime.show()
+
+        SparkApp.logger.info(sparkContext.appName + "Starting jdbc write() !")
+        df_cleaned_datetime.write.jdbc(url=ConfigFramework.getPostgres_URL(), table=table_name, mode="overwrite"
+                       , properties=ConfigFramework.getPostgres_Properties())
+        SparkApp.logger.info(sparkContext.appName + "End jdbc write() !")
 
         SparkApp.logger.info(sparkContext.appName + "Ending run()")
 

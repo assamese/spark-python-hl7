@@ -16,7 +16,7 @@
         "id": "56770371",
         "meta": {
           "versionId": "0",
-          "lastUpdated": "2016-06-27T00:12:26.000Z"
+          "lastUpdated": "2019-06-27T00:12:26.000Z"
         },
         "text": {
           "status": "generated",
@@ -128,7 +128,7 @@
         "encounter": {
           "reference": "Encounter/6188499"
         },
-        "authoredOn": "2016-06-24T10:38:59.000-05:00",
+        "authoredOn": "2019-06-24T10:38:59.000-05:00",
         "requester": {
           "reference": "Practitioner/1852008",
           "display": "Knope, Leslie"
@@ -140,7 +140,7 @@
             "timing": {
               "repeat": {
                 "boundsPeriod": {
-                  "start": "2016-06-24T10:39:00.000-05:00"
+                  "start": "2019-06-24T10:39:00.000-05:00"
                 }
               },
               "code": {
@@ -182,7 +182,7 @@
         ],
         "dispenseRequest": {
           "validityPeriod": {
-            "start": "2016-06-24T10:38:59.000-05:00"
+            "start": "2019-06-24T10:38:59.000-05:00"
           }
         }
       }

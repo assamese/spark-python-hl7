@@ -61,7 +61,7 @@ if __name__ == "__main__":
     # sqlContext = SQLContext(sparkContext)
     print("------------------------------ " + app_name + " Spark-App-start -----------------------------------------")
     folder_name = '/home/assamese/work/python-projects/spark-python-hl7/hl7-data/'
-    table_name = 'hl7_Pipeline_Step1_sink'
+    table_name = 'hl7_Pipeline_Step1_1_sink'
     SparkApp.run(sparkContext, folder_name, table_name)
 
     print("------------------------------- " + app_name + " Spark-App-end ------------------------------------------")
