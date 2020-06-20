@@ -19,6 +19,7 @@ Number of open source projects are used:
 ### How to run
 
 Install the dependencies.
+Download the PostgreSQL JDBC Driver from https://jdbc.postgresql.org/download.html
 
 ```sh
 $ cd <folder that has the .py files>
