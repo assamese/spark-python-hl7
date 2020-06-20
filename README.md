@@ -14,12 +14,15 @@ The following sample data formats are used:
 Number of open source projects are used:
 
 * PySpark - (https://spark.apache.org/downloads.html)
+* Python
 * ElephantSQL - PostgreSQL as a Service (https://www.elephantsql.com/) . Fully Managed HA PostgreSQL
 
 ### How to run
 
-Install the dependencies.
-Download the PostgreSQL JDBC Driver from https://jdbc.postgresql.org/download.html
+Install the dependencies:
+* Spark
+* Python 3.7+
+* PostgreSQL JDBC Driver from https://jdbc.postgresql.org/download.html
 
 ```sh
 $ cd <folder that has the .py files>
