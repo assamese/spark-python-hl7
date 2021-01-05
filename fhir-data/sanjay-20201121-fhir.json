@@ -1,0 +1,92 @@
+{
+  "id" : "32448010170.2020.LCLS.31175220.2020-11-19.199999",
+  "category" : {
+    "coding" : [
+      {
+        "system" : "http://hl7.org/fhir/v2/0074",
+        "code" : "LAB"
+      }
+    ]
+  },
+  "subject" : {
+    "reference" : "Patient/9204970"
+  },
+  "effectiveDateTime" : "2020-11-19T00:00:00+00:00",
+  "resourceType" : "DiagnosticReport",
+  "contained" : [
+    {
+      "status" : "final",
+      "category" : {
+        "coding" : [
+          {
+            "system" : "http://hl7.org/fhir/observation-category",
+            "code" : "laboratory"
+          }
+        ]
+      },
+      "issued" : "2020-11-21T05:06:00.000+00:00",
+      "id" : "1",
+      "code" : {
+        "coding" : [
+          {
+            "system" : "http://labcorp.com/ers/testCodes",
+            "display" : "Please note",
+            "code" : "199999"
+          }
+        ]
+      },
+      "interpretation" : {
+        "coding" : [
+          {
+            "system" : "http://hl7.org/fhir/v2/0078",
+            "code" : "N"
+          }
+        ]
+      },
+      "subject" : {
+        "reference" : "Patient/9204970"
+      },
+      "meta" : {
+        "profile" : [
+          "http://fhir.org/guides/argonaut/StructureDefinition/argo-observationresults"
+        ]
+      },
+      "effectiveDateTime" : "2020-11-19T00:00:00+00:00",
+      "comments" : "The date and/or time of collection was not indicated on the\nrequisition as required by state and federal law.  The date of\nreceipt of the specimen was used as the collection date if not\nsupplied.",
+      "resourceType" : "Observation"
+    }
+  ],
+  "identifier" : [
+    {
+      "id" : "32448010170.2020.LCLS.31175220.2020-11-19.199999",
+      "system" : "http://labcorp.com/ers/diagnosticReport"
+    }
+  ],
+  "code" : {
+    "text" : "Please note",
+    "coding" : [
+      {
+        "system" : "http://labcorp.com/ers/testCodes",
+        "display" : "Please note",
+        "code" : "199999"
+      }
+    ]
+  },
+  "performer" : {
+    "display" : "Organization/Labcorp"
+  },
+  "meta" : {
+    "profile" : [
+      "http://fhir.org/guides/argonaut/StructureDefinition/argo-diagnosticreport"
+    ],
+    "lastUpdated" : "2020-11-21T05:07:42.000+00:00"
+  },
+  "result" : [
+    {
+      "reference" : "#1"
+    }
+  ],
+  "status" : "final",
+  "issued" : "2020-11-21T05:06:00.000+00:00"
+}
+
